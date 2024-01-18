@@ -1,0 +1,56 @@
+name: Build and Deploy
+on:
+  pull_request:
+    types: [labeled]
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker build -t ${{ secrets.DOCKER_USER_NAME }}/web:${{ github.event.pull_request.head.sha }} .
+        working-directory: ./web
+      - name: Push
+        run: docker push ${{ secrets.DOCKER_USER_NAME }}/web:${{ github.event.pull_request.head.sha }}
+      - name: Notify
+        run: echo "FE pushed successfully 🎉"
+  build-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker build -t ${{ secrets.DOCKER_USER_NAME }}/db:${{ github.event.pull_request.head.sha }} .
+        working-directory: ./db
+      - name: Push
+        run: docker push ${{ secrets.DOCKER_USER_NAME }}/db:${{ github.event.pull_request.head.sha }}
+      - name: Notify
+        run: echo "DB schema pushed successfully 🎉"
+  build-words:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker build -t ${{ secrets.DOCKER_USER_NAME }}/words:${{ github.event.pull_request.head.sha }} .
+        working-directory: ./words
+      - name: Push
+        run: docker push ${{ secrets.DOCKER_USER_NAME }}/words:${{ github.event.pull_request.head.sha }}
+      - name: Notify
+        run: echo "Mini Java server pushed successfully 🎉"
